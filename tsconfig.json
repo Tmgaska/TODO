@@ -1,7 +1,24 @@
 {
+<<<<<<< HEAD
   "files": [],
   "references": [
     { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.node.json" }
   ]
+=======
+  "compilerOptions": {
+    "target": "es5",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "sourceMap": true,
+    "skipLibCheck": true,
+    "strict": false,
+    "forceConsistentCasingInFileNames": true,
+    "esModuleInterop": true,
+    "declaration": true,
+    "outDir": "./dist"
+  },
+  "exclude": ["node_modules", "dist"],
+  "include": ["src"]
+>>>>>>> c597a1a31c8f5e9444db62c566c3dec8c13dea66
 }
