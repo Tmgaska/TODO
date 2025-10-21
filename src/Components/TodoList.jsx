@@ -36,8 +36,18 @@ function moveTaskDown(index){
   placeholder='enter a tesk.....'
   value={newTask}
   onChange={handleInputChange}/>
+  <button
+     className="add-button"
+     onclick={addTask}>
+      Add
+     </button>
 </div>
 
+<ol>
+  {tasks.map((task,index) =>
+  <li></li>
+  )}
+</ol>
   </div>);
 }
 export default TodoList
