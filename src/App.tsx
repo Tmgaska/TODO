@@ -1,6 +1,6 @@
-// src/App.tsx
-import React, { useState, useEffect } from "react";
-import TodoList from "./TodoList"; // Import the TodoList component
+import React, { useState } from "react";
+import TodoList from "./TodoList";
+import "./App.css";
 
 export interface Todo {
   id: number;
@@ -9,45 +9,82 @@ export interface Todo {
 }
 
 const App: React.FC = () => {
-  // Re-add the state for todos
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [inputValue, setInputValue] = useState("");
+  const [newTodoText, setNewTodoText] = useState("");
 
-  useEffect(() => {
-    console.log("Current todos:", todos);
-    console.log("Current input value:", inputValue);
-  }, [todos, inputValue]);
+  const [showIncompleted, setShowIncompleted] = useState(true);
+  const [showCompleted, setShowCompleted] = useState(true);
 
-  const addTodo = (text: string) => {
+  const handleAdd = () => {
+    if (newTodoText.trim() === "") return;
     const newTodo: Todo = {
       id: Date.now(),
-      text,
+      text: newTodoText,
       completed: false,
     };
-    setTodos((prevTodos) => [...prevTodos, newTodo]);
+    setTodos([...todos, newTodo]);
+    setNewTodoText("");
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (inputValue.trim()) {
-      addTodo(inputValue);
-      setInputValue("");
-    }
+  const handleToggle = (id: number) => {
+    setTodos(
+      todos.map((todo) =>
+        todo.id === id ? { ...todo, completed: !todo.completed } : todo
+      )
+    );
   };
+
+  const handleDelete = (id: number) =>
+    setTodos(todos.filter((todo) => todo.id !== id));
+  const handleEdit = (id: number, newText: string) => {
+    setTodos(
+      todos.map((todo) => (todo.id === id ? { ...todo, text: newText } : todo))
+    );
+  };
+
+  const IncompletedTodos = todos.filter((todo) => !todo.completed);
+  const completedTodos = todos.filter((todo) => todo.completed);
 
   return (
-    <div>
-      <h1>Todo List</h1>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Add a new todo"
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-        />
-        <button type="submit">Add</button>
-      </form>
-      <TodoList todos={todos} /> {/* Use the TodoList component here */}
+    <div className="todo">
+      <div className="tittle">
+        <h1>My Todo App</h1>
+      </div>
+      <input
+        type="text"
+        value={newTodoText}
+        onChange={(e) => setNewTodoText(e.target.value)}
+        placeholder="Enter a new task..."
+      />
+      <button onClick={handleAdd}>Add</button>
+
+      <div style={{ marginTop: "20px" }}>
+        <button onClick={() => setShowIncompleted(!showIncompleted)}>
+          {showIncompleted} Incompleted Tasks
+        </button>
+        {showIncompleted && (
+          <TodoList
+            todos={IncompletedTodos}
+            onToggle={handleToggle}
+            onDelete={handleDelete}
+            onEdit={handleEdit}
+          />
+        )}
+      </div>
+
+      <div style={{ marginTop: "20px" }}>
+        <button onClick={() => setShowCompleted(!showCompleted)}>
+          {showCompleted} Completed Tasks
+        </button>
+        {showCompleted && (
+          <TodoList
+            todos={completedTodos}
+            onToggle={handleToggle}
+            onDelete={handleDelete}
+            onEdit={handleEdit}
+          />
+        )}
+      </div>
     </div>
   );
 };

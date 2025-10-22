@@ -1,7 +1,47 @@
-.todo-list{
+.tittle{
   background-color: lightblue;
-  padding: 5px 5px;
-  font-size: 30px;
+  padding: 2px 2px;
+  font-size: 10px;
   border: 2px solid black;
+  text-align: center;
+  margin: 30px;
+}
+.handleAddTodo{
+  background-color: lightblue;
+  border: 2px solid black;
+}
+
+.todo {
+  text-align: center;
+  margin-top: 40px;
   
+}
+
+input {
+  padding: 5px;
+  margin-right: 5px;
+}
+
+button {
+  padding: 15px 10px;
+  margin-top: 10px 10px ;
+  cursor: pointer ;
+    background-color: lightblue;
+      border: 2px solid black;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+li {
+    background-color: lightblue;;
+  padding: 8px;
+  width: 300px;
+  margin: 8px auto;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
 }
