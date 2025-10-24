@@ -33,49 +33,51 @@ const TodoList: React.FC<TodoListProps> = ({
   return (
     <ul>
       {todos.length === 0 ? (
-        <p>No tasks here.</p>
+        <p>No tasks here</p>
       ) : (
-        todos.map((todo) => (
-          <li key={todo.id} style={{ marginBottom: "8px" }}>
-            {editingId === todo.id ? (
-              <>
-                <input
-                  type="text"
-                  value={editingText}
-                  onChange={(e) => setEditingText(e.target.value)}
-                />
-                <button onClick={saveEdit}>Save</button>
-                <button onClick={() => setEditingId(null)}>Cancel</button>
-              </>
-            ) : (
-              <>
-                <span
-                  style={{
-                    textDecoration: todo.completed ? "line-through" : "none",
-                    marginRight: "10px",
-                  }}
-                >
-                  {todo.text}
-                </span>
-                <button onClick={() => onToggle(todo.id)}>
-                  {todo.completed ? "Incomplete" : "Complete"}
-                </button>
-                <button
-                  onClick={() => startEditing(todo)}
-                  style={{ marginLeft: "5px" }}
-                >
-                  ✏️ Edit
-                </button>
-                <button
-                  onClick={() => onDelete(todo.id)}
-                  style={{ marginLeft: "5px" }}
-                >
-                  🗑️ Delete
-                </button>
-              </>
-            )}
-          </li>
-        ))
+        <div className="todo-container">
+          {todos.map((todo, index) => (
+            <div key={index} className="todo-item">
+              {editingId === todo.id ? (
+                <>
+                  <input
+                    type="text"
+                    value={editingText}
+                    onChange={(e) => setEditingText(e.target.value)}
+                  />
+                  <button onClick={saveEdit}>Save</button>
+                  <button onClick={() => setEditingId(null)}>Cancel</button>
+                </>
+              ) : (
+                <>
+                  <span
+                    style={{
+                      textDecoration: todo.completed ? "line-through" : "none",
+                      marginRight: "10px",
+                    }}
+                  >
+                    {todo.text}
+                  </span>
+                  <button onClick={() => onToggle(todo.id)}>
+                    {todo.completed ? "Incomplete" : "Complete"}
+                  </button>
+                  <button
+                    onClick={() => startEditing(todo)}
+                    style={{ marginLeft: "10px" }}
+                  >
+                    ✏️ Edit
+                  </button>
+                  <button
+                    onClick={() => onDelete(todo.id)}
+                    style={{ marginLeft: "10px" }}
+                  >
+                    🗑️ Delete
+                  </button>
+                </>
+              )}
+            </div>
+          ))}
+        </div>
       )}
     </ul>
   );
