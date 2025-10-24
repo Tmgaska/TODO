@@ -5,7 +5,12 @@ interface TodoListProps {
   todos: Todo[];
   onToggle: (id: number) => void;
   onDelete: (id: number) => void;
-  onEdit: (id: number, newText: string) => void;
+  onEdit: (
+    id: number,
+    newText: string,
+    newDate?: string,
+    newTime?: string
+  ) => void;
 }
 
 const TodoList: React.FC<TodoListProps> = ({
@@ -16,10 +21,14 @@ const TodoList: React.FC<TodoListProps> = ({
 }) => {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editingText, setEditingText] = useState("");
+  const [editingDate, setEditingDate] = useState("");
+  const [editingTime, setEditingTime] = useState("");
 
   const startEditing = (todo: Todo) => {
     setEditingId(todo.id);
     setEditingText(todo.text);
+    setEditingDate(todo.dueDate || "");
+    setEditingTime(todo.dueTime || "");
   };
 
   const saveEdit = () => {
@@ -27,6 +36,8 @@ const TodoList: React.FC<TodoListProps> = ({
       onEdit(editingId, editingText);
       setEditingId(null);
       setEditingText("");
+      setEditingDate("");
+      setEditingTime("");
     }
   };
 
@@ -44,6 +55,16 @@ const TodoList: React.FC<TodoListProps> = ({
                     type="text"
                     value={editingText}
                     onChange={(e) => setEditingText(e.target.value)}
+                  />
+                  <input
+                    type="date"
+                    value={editingDate}
+                    onChange={(e) => setEditingDate(e.target.value)}
+                  />
+                  <input
+                    type="time"
+                    value={editingTime}
+                    onChange={(e) => setEditingTime(e.target.value)}
                   />
                   <button onClick={saveEdit}>Save</button>
                   <button onClick={() => setEditingId(null)}>Cancel</button>

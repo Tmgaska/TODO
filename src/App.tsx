@@ -6,6 +6,8 @@ export interface Todo {
   id: number;
   text: string;
   completed: boolean;
+  dueDate?: string;
+  dueTime?: string;
 }
 
 const App: React.FC = () => {
@@ -36,9 +38,18 @@ const App: React.FC = () => {
 
   const handleDelete = (id: number) =>
     setTodos(todos.filter((todo) => todo.id !== id));
-  const handleEdit = (id: number, newText: string) => {
-    setTodos(
-      todos.map((todo) => (todo.id === id ? { ...todo, text: newText } : todo))
+  const handleEdit = (
+    id: number,
+    newText: string,
+    newDate?: string,
+    newTime?: string
+  ) => {
+    setTodos((prev) =>
+      prev.map((todo) =>
+        todo.id === id
+          ? { ...todo, text: newText, dueDate: newDate, dueTime: newTime }
+          : todo
+      )
     );
   };
 
@@ -47,7 +58,7 @@ const App: React.FC = () => {
 
   return (
     <div className="todo">
-      <div className="tittle">
+      <div className="title">
         <h1>My Todo App</h1>
       </div>
       <input
