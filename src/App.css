@@ -1,12 +1,15 @@
 body {
-  margin: 0 800px;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
 }
 
 .todo {
   text-align: center;
-  width: auto; /* 任意の幅 */
-  margin: 0 auto; /* 中央寄せ */
-}
+  width: auto; 
+  margin: 0 auto; }
 
 .title{
   background-color: lightblue;
@@ -17,11 +20,6 @@ body {
   margin: 30px;
     border-radius: 5px;
 }
-.handleAddTodo{
-  background-color: lightblue;
-  border: 1px solid black;
-}
-
 input {
   padding: 5px;
   margin-right: 5px;
@@ -40,9 +38,6 @@ ul {
 
 }
 
-.text{
-  background-color: lightblue;
-}
 .todo-container {
   width: 600px;
   margin: 0 auto;
@@ -54,24 +49,15 @@ ul {
   box-shadow: 00 10px rgba(0,0,0,0.1);
   border: 1px solid black;
 }
-.todo-items {
-display: flex;
-justify-content: space-between;
-align-items: center;
-margin-bottom: 10px;
-padding: 10px;
-border-bottom: 1px solid #add;
-}
+
+
 @media (max-width: 600px){
   .todo-container {
     width: 95%;
     padding: 10px;
     font-size: 14px;
   }
-  .todo-item {
-    flex-direction:column;
-    align-items: flex-start;
-  }
+  
 }
 @media (min-width: 601px) and (max-width:1024px){
   .todo-container {
