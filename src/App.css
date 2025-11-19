@@ -4,61 +4,66 @@ body {
   justify-content: center;
   align-items: center;
   height: 100vh;
+  background-color: antiquewhite;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
 }
-
-.todo {
-  text-align: center;
-  width: auto; 
-  margin: 0 auto; }
-
-.title{
-  background-color: lightblue;
-  padding: 20px 20px;
-  font-size: 10px;
-  border:1px solid black;
-  text-align: center;
-  margin: 30px;
-    border-radius: 5px;
+.head{
+  white-space: pre-wrap;
+  word-break:break-word;
 }
-input {
-  padding: 5px;
-  margin-right: 5px;
-
+.todo{
+   background-color: #fff;
+  padding: 20px 30px;
+  border-radius: 10px;
+  box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+  width: 500px;
+  max-width: 95%;
+  box-sizing: border-box;
+  text-align: center;
+}
+.todo input[type="text"],
+.todo input[type="date"] {
+  width: calc(50% - 10px);
+  padding: 10px;
+  margin: 5px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+ 
 }
 
 button {
-  padding: 15px 10px;
-  margin-top: 10px 10px ;
-    background-color: lightblue;
-      border: 1px solid black;
-}
-ul {
-  list-style: none;
-  padding: 0;
-
-}
-
-.todo-container {
-  width: 600px;
-  margin: 0 auto;
-  padding: 20px;
-  font-size: 18px;
-  background: 10px;
+  padding: 10px 20px;
+  margin: 10px 5px 0 5px;
   background-color: lightblue;
-  border-radius: 10px;
-  box-shadow: 00 10px rgba(0,0,0,0.1);
   border: 1px solid black;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.2s;
+   display: flex;
 }
 
-
+.btn{
+  display: inline;
+}
+.box {
+  text-align: center;
+  margin-top: 20px;
+}
 @media (max-width: 600px){
   .todo-container {
     width: 95%;
     padding: 10px;
     font-size: 14px;
   }
-  
+   .todo input[type="text"],
+  .todo input[type="date"] {
+    width: calc(100% - 10px);
+  }
 }
+  
+
 @media (min-width: 601px) and (max-width:1024px){
   .todo-container {
     width: 80%;

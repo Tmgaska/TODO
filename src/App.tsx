@@ -1,58 +1,148 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import TodoList from "./TodoList";
 import "./App.css";
 
 export interface Todo {
   id: number;
-  text: string;
-  completed: boolean;
+  name: string;
+  isComplete: boolean;
   dueDate?: string;
+  completedDate?: string | null;
 }
 
 const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [newTodoText, setNewTodoText] = useState("");
-  const [editingDate, setEditingDate] = useState("");
-  const [showIncompleted, setShowIncompleted] = useState(true);
-  const [showCompleted, setShowCompleted] = useState(true);
+  const maxLength = 99;
+  const isTodoTooLong = newTodoText.length > maxLength;
+  const [newTodoDate, setNewTodoDate] = useState("");
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [showIncompleted, setShowIncompleted] = useState(false);
+  const [showCompleted, setShowCompleted] = useState(false);
 
-  const handleAdd = () => {
-    if (newTodoText.trim() === "") return;
-    const newTodo: Todo = {
-      id: Date.now(),
-      text: newTodoText,
-      completed: false,
-    };
-    setTodos([...todos, newTodo]);
-    setNewTodoText("");
+  console.log("todos", todos);
+
+  useEffect(() => {
+    fetch("https://localhost:44376/api/TodoItems")
+      .then((res) => res.json())
+      .then((data) => {
+        const mapped = data.map((d: any) => ({
+          id: d.id,
+          name: d.name,
+          isComplete: d.isComplete,
+          dueDate: d.dueDate,
+          completedDate: d.completedDate,
+        }));
+        setTodos(mapped);
+        console.log("Fetched todos:", mapped);
+      })
+      .catch((err) => console.error("Error fetching todos:", err));
+  }, []);
+
+  const handleAddOrSave = () => {
+    if (newTodoText.trim() === "" || isTodoTooLong) return;
+
+    if (editingId !== null) {
+      const todo = todos.find((t) => t.id === editingId);
+      if (!todo) return;
+
+      fetch(`https://localhost:44376/api/TodoItems/${editingId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: editingId,
+          name: newTodoText,
+          isComplete: todo.isComplete,
+          dueDate: newTodoDate,
+        }),
+      })
+        .then(() => {
+          setTodos(
+            todos.map((t) =>
+              t.id === editingId
+                ? { ...t, name: newTodoText, dueDate: newTodoDate }
+                : t
+            )
+          );
+          setEditingId(null);
+          setNewTodoText("");
+          setNewTodoDate("");
+        })
+        .catch((err) => console.error("Error saving todo:", err));
+
+      return;
+    }
+
+    fetch("https://localhost:44376/api/TodoItems", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: newTodoText,
+        isComplete: false,
+        dueDate: newTodoDate,
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setTodos([
+          ...todos,
+          {
+            id: data.id,
+            name: data.name,
+            isComplete: data.isComplete,
+            dueDate: data.dueDate,
+          },
+        ]);
+        setNewTodoText("");
+        setNewTodoDate("");
+      })
+      .catch((err) => console.error("Error adding todo:", err));
+  };
+
+  const handleDelete = (id: number) => {
+    fetch(`https://localhost:44376/api/TodoItems/${id}`, { method: "DELETE" })
+      .then(() => setTodos(todos.filter((t) => t.id !== id)))
+      .catch((err) => console.error("Error deleting todo:", err));
   };
 
   const handleToggle = (id: number) => {
-    setTodos(
-      todos.map((todo) =>
-        todo.id === id ? { ...todo, completed: !todo.completed } : todo
-      )
-    );
+    const todo = todos.find((t) => t.id === id);
+    if (!todo) return;
+
+    const today = new Date().toISOString().split("T")[0];
+
+    const updatedTodo: Todo = {
+      ...todo,
+      isComplete: !todo.isComplete,
+      completedDate: !todo.isComplete ? today : undefined,
+    };
+
+    fetch(`https://localhost:44376/api/TodoItems/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updatedTodo),
+    })
+      .then(() => {
+        setTodos(todos.map((t) => (t.id === id ? updatedTodo : t)));
+      })
+      .catch((err) => console.error("Error updating todo:", err));
   };
 
-  const handleDelete = (id: number) =>
-    setTodos(todos.filter((todo) => todo.id !== id));
-  const handleEdit = (id: number, newText: string, newDate?: string) => {
-    setTodos((prev) =>
-      prev.map((todo) =>
-        todo.id === id ? { ...todo, text: newText, dueDate: newDate } : todo
-      )
-    );
+  const handleEdit = (id: number) => {
+    const todo = todos.find((t) => t.id === id);
+    if (!todo) return;
+    setEditingId(id);
+    setNewTodoText(todo.name);
+    setNewTodoDate(todo.dueDate || "");
   };
 
-  const IncompletedTodos = todos.filter((todo) => !todo.completed);
-  const completedTodos = todos.filter((todo) => todo.completed);
+  const incompleteTodos = todos.filter((t) => !t.isComplete);
+  const completedTodos = todos.filter((t) => t.isComplete);
 
   return (
     <div className="todo">
-      <div className="title">
-        <h1>My Todo App</h1>
-      </div>
+      <h1>My Todo App</h1>
+
       <input
         type="text"
         value={newTodoText}
@@ -62,31 +152,41 @@ const App: React.FC = () => {
 
       <input
         type="date"
-        value={editingDate}
-        onChange={(e) => setEditingDate(e.target.value)}
+        value={newTodoDate}
+        onChange={(e) => setNewTodoDate(e.target.value)}
       />
 
-      <button onClick={handleAdd}>Add</button>
-      <p> {editingDate}</p>
+      {isTodoTooLong && (
+        <p style={{ color: "red", marginTop: "5px" }}>
+          文字数が 100 を超えています！
+        </p>
+      )}
 
-      <div style={{ marginTop: "20px" }}>
+      <button
+        onClick={handleAddOrSave}
+        disabled={isTodoTooLong || newTodoText.trim() === ""}
+      >
+        {editingId ? "Save" : "Add"}
+      </button>
+
+      <div className="box">
         <button onClick={() => setShowIncompleted(!showIncompleted)}>
           {showIncompleted} Incompleted Tasks
         </button>
+
         {showIncompleted && (
           <TodoList
-            todos={IncompletedTodos}
+            todos={incompleteTodos}
             onToggle={handleToggle}
             onDelete={handleDelete}
             onEdit={handleEdit}
           />
         )}
-      </div>
 
-      <div style={{ marginTop: "20px" }}>
         <button onClick={() => setShowCompleted(!showCompleted)}>
           {showCompleted} Completed Tasks
         </button>
+
         {showCompleted && (
           <TodoList
             todos={completedTodos}

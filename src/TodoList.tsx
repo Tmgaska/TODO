@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React from "react";
 import type { Todo } from "./App";
 
 interface TodoListProps {
   todos: Todo[];
   onToggle: (id: number) => void;
   onDelete: (id: number) => void;
-  onEdit: (id: number, newText: string, newDate?: string) => void;
+  onEdit: (id: number) => void;
 }
 
 const TodoList: React.FC<TodoListProps> = ({
@@ -14,80 +14,39 @@ const TodoList: React.FC<TodoListProps> = ({
   onDelete,
   onEdit,
 }) => {
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [editingText, setEditingText] = useState("");
-  const [editingDate, setEditingDate] = useState("");
+  if (todos.length === 0) return <p>No tasks here</p>;
 
-  const startEditing = (todo: Todo) => {
-    setEditingId(todo.id);
-    setEditingText(todo.text);
-    setEditingDate(todo.dueDate || "");
-  };
-
-  const saveEdit = () => {
-    if (editingId !== null && editingText.trim() !== "") {
-      onEdit(editingId, editingText);
-      setEditingId(null);
-      setEditingText("");
-      setEditingDate("");
-    }
-  };
+  console.log("TodoList recevied todos:", todos);
 
   return (
     <ul>
-      {todos.length === 0 ? (
-        <p>No tasks here</p>
-      ) : (
-        <div className="todo-container">
-          {todos.map((todo, index) => (
-            <div key={index} className="todo-item">
-              {editingId === todo.id ? (
-                <>
-                  <input
-                    type="text"
-                    value={editingText}
-                    onChange={(e) => setEditingText(e.target.value)}
-                  />
-                  <input
-                    type="date"
-                    value={editingDate}
-                    onChange={(e) => setEditingDate(e.target.value)}
-                  />
-
-                  <button onClick={saveEdit}>Save</button>
-                  <button onClick={() => setEditingId(null)}>Cancel</button>
-                </>
-              ) : (
-                <>
-                  <span
-                    style={{
-                      textDecoration: todo.completed ? "line-through" : "none",
-                      marginRight: "10px",
-                    }}
-                  >
-                    {todo.text}
-                  </span>
-                  <button onClick={() => onToggle(todo.id)}>
-                    {todo.completed ? "Incomplete" : "Complete"}
-                  </button>
-                  <button
-                    onClick={() => startEditing(todo)}
-                    style={{ marginLeft: "10px" }}
-                  >
-                    ✏️ Edit
-                  </button>
-                  <button
-                    onClick={() => onDelete(todo.id)}
-                    style={{ marginLeft: "10px" }}
-                  >
-                    🗑️ Delete
-                  </button>
-                </>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
+      {todos.map((todo) => (
+        <li key={todo.id}>
+          <span
+            className="head"
+            style={{
+              textDecoration: todo.isComplete ? "line-through" : "none",
+              marginRight: "10px",
+            }}
+          >
+            {todo.name}{" "}
+            {todo.dueDate ? `(Due: ${todo.dueDate.split("T")[0]})` : ""}
+            {todo.completedDate
+              ? `(Completed: ${todo.completedDate.split("T")[0]})`
+              : ""}{" "}
+          </span>
+          <br></br>
+          <button className="btn" onClick={() => onToggle(todo.id)}>
+            {todo.isComplete ? "❌Incomplete" : "✅Complete"}
+          </button>
+          <button className="btn" onClick={() => onEdit(todo.id)}>
+            ✏️ Edit
+          </button>
+          <button className="btn" onClick={() => onDelete(todo.id)}>
+            🗑️ Delete
+          </button>
+        </li>
+      ))}
     </ul>
   );
 };
