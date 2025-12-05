@@ -26,16 +26,6 @@ public class TodoController : ControllerBase
         return Ok(todos);
     }
 
-    [HttpGet("all")]
-    public async Task<ActionResult<IEnumerable<TodoItemDTO>>> GetTodoItems()
-    {
-        Console.WriteLine("GET /api/Todo/all called");
-        var todoItems = await _context.TodoItems.ToListAsync();
-        var todoDtos = todoItems.Select(ItemToDTO);
-        Console.WriteLine($"Returning {todoDtos.Count()} DTOs");
-        return Ok(todoDtos);
-    }
-
     [HttpGet("{id}")]
     public async Task<ActionResult<TodoItemDTO>> GetTodoItem(long id)
     {

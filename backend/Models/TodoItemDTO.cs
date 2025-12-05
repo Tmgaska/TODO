@@ -10,3 +10,16 @@ public class TodoItemDTO
     public string? CompletedDate { get; set; }
 
 }
+public class TodoItemCreateDTO
+{
+    public string Name { get; set; } = null!;
+    public bool IsComplete { get; set; } = false;
+    public DateTime? DueDate { get; set; }
+}
+
+public class TodoItemUpdateDTO
+{
+    public string Name { get; set; } = null!;
+    public bool IsComplete { get; set; }
+    public DateTime? DueDate { get; set; }
+}
