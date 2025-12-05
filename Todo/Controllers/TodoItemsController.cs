@@ -1,44 +1,72 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using TodoApi.Models;
+using Todo.Models;
 
-namespace TodoApi.Controllers;
+namespace Todo.Controllers;
 
-[Route("api/[controller]")]
+[Route("api/TodoItems")]
 [ApiController]
-public class TodoItemsController : ControllerBase
+public class TodoController : ControllerBase
 {
     private readonly TodoContext _context;
 
-    public TodoItemsController(TodoContext context)
+    // Constructor
+    public TodoController(TodoContext context)
     {
         _context = context;
+        Console.WriteLine("TodoController initialized");
     }
 
     [HttpGet]
+    public IActionResult GetAll()
+    {
+        Console.WriteLine("GET /api/Todo called");
+        var todos = _context.TodoItems.ToList();
+        Console.WriteLine($"Returning {todos.Count} todos");
+        return Ok(todos);
+    }
+
+    [HttpGet("all")]
     public async Task<ActionResult<IEnumerable<TodoItemDTO>>> GetTodoItems()
     {
-        var todoItems = await _context.TodoItems.ToListAsync(); 
-        var todoDtos = todoItems.Select(ItemToDTO);    
+        Console.WriteLine("GET /api/Todo/all called");
+        var todoItems = await _context.TodoItems.ToListAsync();
+        var todoDtos = todoItems.Select(ItemToDTO);
+        Console.WriteLine($"Returning {todoDtos.Count()} DTOs");
         return Ok(todoDtos);
     }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<TodoItemDTO>> GetTodoItem(long id)
     {
+        Console.WriteLine($"GET /api/Todo/{id} called");
         var todoItem = await _context.TodoItems.FindAsync(id);
-        if (todoItem == null) return NotFound();
+        if (todoItem == null)
+        {
+            Console.WriteLine($"TodoItem {id} not found");
+            return NotFound();
+        }
 
+        Console.WriteLine($"Returning TodoItem {id}");
         return ItemToDTO(todoItem);
     }
 
     [HttpPut("{id}")]
     public async Task<IActionResult> PutTodoItem(long id, TodoItem todoItem)
     {
-        if (id != todoItem.Id) return BadRequest();
+        Console.WriteLine($"PUT /api/Todo/{id} called with Name={todoItem.Name}, IsComplete={todoItem.IsComplete}");
+        if (id != todoItem.Id)
+        {
+            Console.WriteLine("Id mismatch");
+            return BadRequest();
+        }
 
         var existingTodo = await _context.TodoItems.FindAsync(id);
-        if (existingTodo == null) return NotFound();
+        if (existingTodo == null)
+        {
+            Console.WriteLine($"TodoItem {id} not found");
+            return NotFound();
+        }
 
         existingTodo.Name = todoItem.Name;
         existingTodo.IsComplete = todoItem.IsComplete;
@@ -48,10 +76,15 @@ public class TodoItemsController : ControllerBase
         try
         {
             await _context.SaveChangesAsync();
+            Console.WriteLine($"TodoItem {id} updated successfully");
         }
         catch (DbUpdateConcurrencyException)
         {
-            if (!TodoItemExists(id)) return NotFound();
+            if (!TodoItemExists(id))
+            {
+                Console.WriteLine($"TodoItem {id} does not exist during update");
+                return NotFound();
+            }
             throw;
         }
 
@@ -61,6 +94,7 @@ public class TodoItemsController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<TodoItem>> PostTodoItem(TodoItem todoItem)
     {
+        Console.WriteLine($"POST /api/Todo called with Name={todoItem.Name}");
         if (todoItem.IsComplete)
         {
             todoItem.CompletedDate = DateTime.Now;
@@ -69,18 +103,30 @@ public class TodoItemsController : ControllerBase
         _context.TodoItems.Add(todoItem);
         await _context.SaveChangesAsync();
 
-        return CreatedAtAction(nameof(GetTodoItem), new { id = todoItem.Id }, todoItem);
+        Console.WriteLine($"TodoItem {todoItem.Id} created");
+
+        return CreatedAtAction(
+            nameof(GetTodoItem),
+            new { id = todoItem.Id },
+            ItemToDTO(todoItem)
+        );
     }
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteTodoItem(long id)
     {
+        Console.WriteLine($"DELETE /api/Todo/{id} called");
         var todoItem = await _context.TodoItems.FindAsync(id);
-        if (todoItem == null) return NotFound();
+        if (todoItem == null)
+        {
+            Console.WriteLine($"TodoItem {id} not found");
+            return NotFound();
+        }
 
         _context.TodoItems.Remove(todoItem);
         await _context.SaveChangesAsync();
 
+        Console.WriteLine($"TodoItem {id} deleted");
         return NoContent();
     }
 
@@ -88,7 +134,7 @@ public class TodoItemsController : ControllerBase
         _context.TodoItems.Any(e => e.Id == id);
 
     private static TodoItemDTO ItemToDTO(TodoItem todoItem) =>
-        new TodoItemDTO
+        new()
         {
             Id = todoItem.Id,
             Name = todoItem.Name,

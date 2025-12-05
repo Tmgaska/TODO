@@ -17,62 +17,66 @@ const App: React.FC = () => {
   const isTodoTooLong = newTodoText.length > maxLength;
   const [newTodoDate, setNewTodoDate] = useState("");
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [showIncompleted, setShowIncompleted] = useState(false);
+  const [showIncompleted, setShowIncompleted] = useState(true);
   const [showCompleted, setShowCompleted] = useState(false);
 
   console.log("todos", todos);
 
   useEffect(() => {
     fetch("https://localhost:44376/api/TodoItems")
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch todos.");
+        return res.json();
+      })
       .then((data) => {
-        const mapped = data.map((d: any) => ({
-          id: d.id,
-          name: d.name,
-          isComplete: d.isComplete,
-          dueDate: d.dueDate,
-          completedDate: d.completedDate,
-        }));
-        setTodos(mapped);
-        console.log("Fetched todos:", mapped);
+        setTodos(data);
+        console.log("Fetched todos:", data);
       })
       .catch((err) => console.error("Error fetching todos:", err));
   }, []);
-
-  const handleAddOrSave = () => {
+  //handleSave function
+  const handleSave = () => {
     if (newTodoText.trim() === "" || isTodoTooLong) return;
-
     if (editingId !== null) {
       const todo = todos.find((t) => t.id === editingId);
       if (!todo) return;
-
+      //put
       fetch(`https://localhost:44376/api/TodoItems/${editingId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           id: editingId,
-          name: newTodoText,
           isComplete: todo.isComplete,
-          dueDate: newTodoDate,
+          name: newTodoText,
+          dueDate: newTodoDate || null,
         }),
       })
-        .then(() => {
+        .then((res) => {
+          if (!res.ok) throw new Error("Failed to update todo.");
+          //this logic correctly handle 204 responses from your API:
+          if (res.status == 204 || res.headers.get("content-length") === "0") {
+            const putBody = {
+              id: editingId,
+              name: newTodoText,
+              isComplete: todo.isComplete,
+              dueDate: newTodoDate || null,
+            };
+            return putBody;
+          }
+          return res.json();
+        })
+        .then((updatedTodoFromApi) => {
           setTodos(
-            todos.map((t) =>
-              t.id === editingId
-                ? { ...t, name: newTodoText, dueDate: newTodoDate }
-                : t
-            )
+            todos.map((t) => (t.id === editingId ? updatedTodoFromApi : t))
           );
           setEditingId(null);
           setNewTodoText("");
           setNewTodoDate("");
         })
         .catch((err) => console.error("Error saving todo:", err));
-
       return;
     }
-
+    //POST
     fetch("https://localhost:44376/api/TodoItems", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -82,52 +86,60 @@ const App: React.FC = () => {
         dueDate: newTodoDate,
       }),
     })
-      .then((res) => res.json())
-      .then((data) => {
-        setTodos([
-          ...todos,
-          {
-            id: data.id,
-            name: data.name,
-            isComplete: data.isComplete,
-            dueDate: data.dueDate,
-          },
-        ]);
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to add todo.");
+        return res.json();
+      })
+      .then((newTodoFromApi) => {
+        setTodos([...todos, newTodoFromApi]); // Json from model
         setNewTodoText("");
         setNewTodoDate("");
       })
       .catch((err) => console.error("Error adding todo:", err));
   };
-
+  //handleDelete function
   const handleDelete = (id: number) => {
     fetch(`https://localhost:44376/api/TodoItems/${id}`, { method: "DELETE" })
-      .then(() => setTodos(todos.filter((t) => t.id !== id)))
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to delete todo on the server.");
+        }
+        setTodos(todos.filter((t) => t.id !== id));
+      })
       .catch((err) => console.error("Error deleting todo:", err));
   };
-
+  //handleToggle function
   const handleToggle = (id: number) => {
     const todo = todos.find((t) => t.id === id);
     if (!todo) return;
 
     const today = new Date().toISOString().split("T")[0];
-
-    const updatedTodo: Todo = {
+    const newIsComplete = !todo.isComplete;
+    const putBody = {
       ...todo,
-      isComplete: !todo.isComplete,
-      completedDate: !todo.isComplete ? today : undefined,
+      isComplete: newIsComplete,
+      completedDate: newIsComplete ? today : null,
     };
-
+    //PUT
     fetch(`https://localhost:44376/api/TodoItems/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(updatedTodo),
+      body: JSON.stringify(putBody),
     })
-      .then(() => {
-        setTodos(todos.map((t) => (t.id === id ? updatedTodo : t)));
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to toggle todo.");
+        if (res.status === 204 || res.headers.get("content-length") === "0") {
+          return putBody;
+        }
+
+        return res.json();
+      })
+      .then((confirmedTodo) => {
+        setTodos(todos.map((t) => (t.id === id ? confirmedTodo : t)));
       })
       .catch((err) => console.error("Error updating todo:", err));
   };
-
+  //Edit
   const handleEdit = (id: number) => {
     const todo = todos.find((t) => t.id === id);
     if (!todo) return;
@@ -163,7 +175,7 @@ const App: React.FC = () => {
       )}
 
       <button
-        onClick={handleAddOrSave}
+        onClick={handleSave}
         disabled={isTodoTooLong || newTodoText.trim() === ""}
       >
         {editingId ? "Save" : "Add"}
@@ -171,7 +183,7 @@ const App: React.FC = () => {
 
       <div className="box">
         <button onClick={() => setShowIncompleted(!showIncompleted)}>
-          {showIncompleted} Incompleted Tasks
+          Incompleted Tasks ({incompleteTodos.length})
         </button>
 
         {showIncompleted && (
@@ -184,7 +196,7 @@ const App: React.FC = () => {
         )}
 
         <button onClick={() => setShowCompleted(!showCompleted)}>
-          {showCompleted} Completed Tasks
+          Completed Tasks ({completedTodos.length})
         </button>
 
         {showCompleted && (
