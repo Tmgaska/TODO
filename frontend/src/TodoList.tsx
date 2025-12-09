@@ -35,7 +35,7 @@ const TodoList: React.FC<TodoListProps> = ({
               ? `(Completed: ${todo.completedDate.split("T")[0]})`
               : ""}{" "}
           </span>
-          <br></br>
+          <br />
           <button className="btn" onClick={() => onToggle(todo.id)}>
             {todo.isComplete ? "❌Incomplete" : "✅Complete"}
           </button>
