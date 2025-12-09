@@ -99,7 +99,9 @@ const App: React.FC = () => {
   };
   //handleDelete function
   const handleDelete = (id: number) => {
-    fetch(`https://localhost:44376/api/TodoItems/${id}`, { method: "DELETE" })
+    fetch(`https://localhost:44376/api/TodoItems/${id}`, {
+      method: "DELETE",
+    })
       .then((res) => {
         if (!res.ok) {
           throw new Error("Failed to delete todo on the server.");
@@ -108,7 +110,7 @@ const App: React.FC = () => {
       })
       .catch((err) => console.error("Error deleting todo:", err));
   };
-  //handleToggle function
+  //handleToggle checkbox
   const handleToggle = (id: number) => {
     const todo = todos.find((t) => t.id === id);
     if (!todo) return;
@@ -120,7 +122,7 @@ const App: React.FC = () => {
       isComplete: newIsComplete,
       completedDate: newIsComplete ? today : null,
     };
-    //PUT
+    //PUT complete\incopmelte
     fetch(`https://localhost:44376/api/TodoItems/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -134,18 +136,18 @@ const App: React.FC = () => {
 
         return res.json();
       })
-      .then((confirmedTodo) => {
-        setTodos(todos.map((t) => (t.id === id ? confirmedTodo : t)));
+      .then((updatedTodo) => {
+        setTodos(todos.map((t) => (t.id === id ? updatedTodo : t)));
       })
       .catch((err) => console.error("Error updating todo:", err));
   };
-  //Edit
+  //Edit input
   const handleEdit = (id: number) => {
     const todo = todos.find((t) => t.id === id);
     if (!todo) return;
     setEditingId(id);
     setNewTodoText(todo.name);
-    setNewTodoDate(todo.dueDate || "");
+    setNewTodoDate(todo.dueDate ? todo.dueDate.split("T")[0] : "");
   };
 
   const incompleteTodos = todos.filter((t) => !t.isComplete);
@@ -158,7 +160,7 @@ const App: React.FC = () => {
       <input
         type="text"
         value={newTodoText}
-        onChange={(e) => setNewTodoText(e.target.value)}
+        onChange={(e) => setNewTodoText(e.target.value)} //react controls the inuput
         placeholder="Enter a new task..."
       />
 

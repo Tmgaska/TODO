@@ -41,11 +41,11 @@ button {
   border-radius: 5px;
   cursor: pointer;
   transition: 0.2s;
-   display: flex;
+   display: inline-block;
 }
 
 .btn{
-  display: inline;
+  display: inline-block;
 }
 .box {
   text-align: center;
