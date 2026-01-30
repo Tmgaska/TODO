@@ -30,7 +30,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: node-app
-          path: ./frontend/build # Reactの場合はbuild、Next.jsやVueなら適宜変更
+          path: ./frontend/dist # Reactの場合はbuild、Next.jsやVueなら適宜変更
 
   deploy:
     runs-on: ubuntu-latest
@@ -53,3 +53,4 @@ jobs:
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_XXXXX }} # ※既存のProfileシークレット名に合わせてください
           package: .
+
