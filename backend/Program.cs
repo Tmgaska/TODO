@@ -27,7 +27,6 @@ builder.Services.AddDbContext<TodoContext>(options =>
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();//エラーが起きたとき、詳細(しょうさい）detailsなエラー画面を表示
     app.UseSwagger();//API の情報ていぎdefine（定義）を作る
@@ -37,7 +36,6 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();//HTTP で来たアクセスを、自動的に HTTPS に変換。
 app.UseCors("AllowReactApp"); //Reactからのアクセスを確認
-
 app.UseAuthorization();//認可をチェック
 
 app.MapControllers();//リクエストされた URL や HTTP メソッドに合ったController のメソッドを動かす
