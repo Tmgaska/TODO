@@ -47,9 +47,9 @@ jobs:
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'my-frontend-app-axewc5hxaahsavea' # Azure上の正確な名前に合わせてください
-          slot-name: 'Production'
+          app-name: 'my-frontend-app' # Azure上の正確な名前に合わせてください
           package: .
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_099E53CB4B964C8EAA7AA8046101AE1F }}
+
 
 
