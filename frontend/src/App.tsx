@@ -23,13 +23,16 @@ const App: React.FC = () => {
   console.log("todos", todos);
 
   useEffect(() => {
+    //used to show the list of todos when th app loadw
     fetch("https://localhost:44376/api/TodoItems")
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch todos.");
-        return res.json();
+        return res.json(); // ← Kestrel が返した JSON ボディを読み取る
       })
       .then((data) => {
-        setTodos(data);
+        // ← Controller が返した DTO がここに届く
+        console.log("data", data);
+        setTodos(data); // ← React の state に保存して画面に表示
         console.log("Fetched todos:", data);
       })
       .catch((err) => console.error("Error fetching todos:", err));
@@ -52,24 +55,15 @@ const App: React.FC = () => {
         }),
       })
         .then((res) => {
+          // ← Kestrel が返したステータスコード (200, 404など)
           if (!res.ok) throw new Error("Failed to update todo.");
-          //this logic correctly handle 204 responses from your API:
-          if (res.status == 204 || res.headers.get("content-length") === "0") {
-            const putBody = {
-              id: editingId,
-              name: newTodoText,
-              isComplete: todo.isComplete,
-              dueDate: newTodoDate || null,
-            };
-            return putBody;
-          }
           return res.json();
         })
         .then((updatedTodoFromApi) => {
           setTodos(
-            todos.map((t) => (t.id === editingId ? updatedTodoFromApi : t))
+            todos.map((t) => (t.id === editingId ? updatedTodoFromApi : t)),
           );
-          setEditingId(null);
+          setEditingId(null); //終了
           setNewTodoText("");
           setNewTodoDate("");
         })
@@ -110,9 +104,9 @@ const App: React.FC = () => {
       })
       .catch((err) => console.error("Error deleting todo:", err));
   };
-  //handleToggle checkbox
+  //complete incomplete
   const handleToggle = (id: number) => {
-    const todo = todos.find((t) => t.id === id);
+    const todo = todos.find((t) => t.id === id); // check which task to update
     if (!todo) return;
 
     const today = new Date().toISOString().split("T")[0];
@@ -122,7 +116,7 @@ const App: React.FC = () => {
       isComplete: newIsComplete,
       completedDate: newIsComplete ? today : null,
     };
-    //PUT complete\incopmelte
+    //PUT complete\incopmelte button flip edit save edit task
     fetch(`https://localhost:44376/api/TodoItems/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -157,7 +151,7 @@ const App: React.FC = () => {
     <div className="todo">
       <h1>My Todo App</h1>
 
-      <input
+      <input //らん
         type="text"
         value={newTodoText}
         onChange={(e) => setNewTodoText(e.target.value)} //react controls the inuput
@@ -169,19 +163,19 @@ const App: React.FC = () => {
         value={newTodoDate}
         onChange={(e) => setNewTodoDate(e.target.value)}
       />
+      <button
+        className="add-btn"
+        onClick={handleSave}
+        disabled={isTodoTooLong || newTodoText.trim() === ""}
+      >
+        {editingId ? "Save" : "Add"}
+      </button>
 
       {isTodoTooLong && (
         <p style={{ color: "red", marginTop: "5px" }}>
           文字数が 100 を超えています！
         </p>
       )}
-
-      <button
-        onClick={handleSave}
-        disabled={isTodoTooLong || newTodoText.trim() === ""}
-      >
-        {editingId ? "Save" : "Add"}
-      </button>
 
       <div className="box">
         <button onClick={() => setShowIncompleted(!showIncompleted)}>
@@ -191,7 +185,7 @@ const App: React.FC = () => {
         {showIncompleted && (
           <TodoList
             todos={incompleteTodos}
-            onToggle={handleToggle}
+            onToggle={handleToggle} //incomplete
             onDelete={handleDelete}
             onEdit={handleEdit}
           />
@@ -204,7 +198,7 @@ const App: React.FC = () => {
         {showCompleted && (
           <TodoList
             todos={completedTodos}
-            onToggle={handleToggle}
+            onToggle={handleToggle} //compelte
             onDelete={handleDelete}
             onEdit={handleEdit}
           />
