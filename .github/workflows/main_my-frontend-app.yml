@@ -51,6 +51,7 @@ jobs:
         with:
           app-name: 'my-frontend-app-axewc5hxaahsavea' # あなたのアプリ名
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_XXXXX }} # ※既存のProfileシークレット名に合わせてください
+          publish-profile: ${{ secrets.AZURE_FRONTEND_PUBLISH_PROFILE }} # ※既存のProfileシークレット名に合わせてください
           package: .
+
 
