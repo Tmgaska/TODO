@@ -12,7 +12,8 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp",
         policy => policy//ルールの中身を設定
-            .WithOrigins("http://localhost:5173")//React と通信するため
+            .WithOrigins("http://localhost:5173",
+"https://my-frontend-app-axewc5hxaahsvea.japanwest-01.azurewebsites.net")//React と通信するため
             .AllowAnyHeader()
             .AllowAnyMethod());
 });
@@ -27,17 +28,21 @@ builder.Services.AddDbContext<TodoContext>(options =>
 
 var app = builder.Build();
 
+// Swagger を本番でも有効化
+app.UseSwagger();
+app.UseSwaggerUI();
+
+if (app.Environment.IsDevelopment())
 {
-    app.UseDeveloperExceptionPage();//エラーが起きたとき、詳細(しょうさい）detailsなエラー画面を表示
-    app.UseSwagger();//API の情報ていぎdefine（定義）を作る
-    app.UseSwaggerUI(); //ブラウザで API をテストできる画面を表示する
+    app.UseDeveloperExceptionPage();
+}
+else
+{
+    app.UseExceptionHandler("/error");
 }
 
-
-app.UseHttpsRedirection();//HTTP で来たアクセスを、自動的に HTTPS に変換。
-app.UseCors("AllowReactApp"); //Reactからのアクセスを確認
-app.UseAuthorization();//認可をチェック
-
-app.MapControllers();//リクエストされた URL や HTTP メソッドに合ったController のメソッドを動かす
-
-app.Run();// アプリを起動して、リクエストリクエストを ずっと待つ。
+app.UseHttpsRedirection();
+app.UseCors("AllowReactApp");
+app.UseAuthorization();
+app.MapControllers();
+app.Run();
