@@ -22,13 +22,7 @@ const TodoList: React.FC<TodoListProps> = ({
     <ul>
       {todos.map((todo) => (
         <li key={todo.id}>
-          <span
-            className="head"
-            style={{
-              textDecoration: todo.isComplete ? "line-through" : "none",
-              marginRight: "10px",
-            }}
-          >
+          <span className={`head ${todo.isComplete ? "completed" : ""}`}>
             {todo.name}{" "}
             {todo.dueDate ? `(Due: ${todo.dueDate.split("T")[0]})` : ""}
             {todo.completedDate

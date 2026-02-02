@@ -6,53 +6,28 @@ namespace Todo.Controllers;
 
 [Route("api/TodoItems")]
 [ApiController]
-public class TodoController : ControllerBase
+public class TodoController : ControllerBase//TodoController は、ASP.NET Core で Web API を作る
 {
     private readonly TodoContext _context;
 
-    // Constructor
     public TodoController(TodoContext context)
     {
         _context = context;
-        Console.WriteLine("TodoController initialized");
+        Console.WriteLine("TodoController initialized");//受け取った context を _context にコピーして保存
     }
-
+    //end points
     [HttpGet]
-    public IActionResult GetAll()
-    {
-        Console.WriteLine("GET /api/Todo called");
-        var todos = _context.TodoItems.ToList();
-        Console.WriteLine($"Returning {todos.Count} todos");
-        return Ok(todos);
-    }
-
-    [HttpGet("all")]
     public async Task<ActionResult<IEnumerable<TodoItemDTO>>> GetTodoItems()
     {
-        Console.WriteLine("GET /api/Todo/all called");
+        Console.WriteLine("GET /api/Todo called");
         var todoItems = await _context.TodoItems.ToListAsync();
         var todoDtos = todoItems.Select(ItemToDTO);
         Console.WriteLine($"Returning {todoDtos.Count()} DTOs");
         return Ok(todoDtos);
     }
 
-    [HttpGet("{id}")]
-    public async Task<ActionResult<TodoItemDTO>> GetTodoItem(long id)
-    {
-        Console.WriteLine($"GET /api/Todo/{id} called");
-        var todoItem = await _context.TodoItems.FindAsync(id);
-        if (todoItem == null)
-        {
-            Console.WriteLine($"TodoItem {id} not found");
-            return NotFound();
-        }
-
-        Console.WriteLine($"Returning TodoItem {id}");
-        return ItemToDTO(todoItem);
-    }
-
     [HttpPut("{id}")]
-    public async Task<IActionResult> PutTodoItem(long id, TodoItem todoItem)
+    public async Task<ActionResult<TodoItemDTO>> PutTodoItem(long id, TodoItem todoItem)
     {
         Console.WriteLine($"PUT /api/Todo/{id} called with Name={todoItem.Name}, IsComplete={todoItem.IsComplete}");
         if (id != todoItem.Id)
@@ -78,38 +53,34 @@ public class TodoController : ControllerBase
             await _context.SaveChangesAsync();
             Console.WriteLine($"TodoItem {id} updated successfully");
         }
-        catch (DbUpdateConcurrencyException)
+        catch (DbUpdateConcurrencyException)//two users try to update the same database row
         {
             if (!TodoItemExists(id))
             {
                 Console.WriteLine($"TodoItem {id} does not exist during update");
-                return NotFound();
+                return NotFound();//TodoItem が 存在しない場合
             }
             throw;
         }
 
-        return NoContent();
+        return Ok(ItemToDTO(existingTodo));
     }
 
     [HttpPost]
-    public async Task<ActionResult<TodoItem>> PostTodoItem(TodoItem todoItem)
+    public async Task<ActionResult<TodoItem>> PostTodoItem(TodoItem todoItem)//フロントエンドから送られてくる Todo データ
     {
         Console.WriteLine($"POST /api/Todo called with Name={todoItem.Name}");
         if (todoItem.IsComplete)
         {
             todoItem.CompletedDate = DateTime.Now;
         }
-
         _context.TodoItems.Add(todoItem);
         await _context.SaveChangesAsync();
 
         Console.WriteLine($"TodoItem {todoItem.Id} created");
 
-        return CreatedAtAction(
-            nameof(GetTodoItem),
-            new { id = todoItem.Id },
-            ItemToDTO(todoItem)
-        );
+        return todoItem;
+        
     }
 
     [HttpDelete("{id}")]
@@ -132,14 +103,14 @@ public class TodoController : ControllerBase
 
     private bool TodoItemExists(long id) =>
         _context.TodoItems.Any(e => e.Id == id);
-
+    //helper methods
     private static TodoItemDTO ItemToDTO(TodoItem todoItem) =>
         new()
         {
             Id = todoItem.Id,
             Name = todoItem.Name,
             IsComplete = todoItem.IsComplete,
-            DueDate = todoItem.DueDate?.ToString("yyyy-MM-dd"),
-            CompletedDate = todoItem.CompletedDate?.ToString("yyyy-MM-dd")
+            DueDate = todoItem.DueDate?.ToString("yyyy-MM-dd"),//DueDate が null なら null
+            CompletedDate = todoItem.CompletedDate?.ToString("yyyy-MM-dd")//完了していない Todo は null
         };
 }

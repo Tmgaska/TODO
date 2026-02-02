@@ -3,53 +3,73 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  height: 150vh;
   background-color: antiquewhite;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 
 }
-.head{
+.head {
+  margin-right: 10px;
   white-space: pre-wrap;
-  word-break:break-word;
+  word-break: break-word;
+  font-size: 22px;        /* bigger text */
+  font-weight: 500;       /* medium boldness */
+  color: #333;            /* darker text */
+  display: block;  /* consistent inline styling */
+}
+
+.completed {
+  text-decoration: line-through;
+  color: #999;
 }
 .todo{
    background-color: #fff;
   padding: 20px 30px;
   border-radius: 10px;
   box-shadow: 0 8px 15px rgba(0,0,0,0.1);
-  width: 500px;
+  width: 800px;
   max-width: 95%;
   box-sizing: border-box;
   text-align: center;
 }
 .todo input[type="text"],
 .todo input[type="date"] {
-  width: calc(50% - 10px);
+ 
   padding: 10px;
   margin: 5px;
   border-radius: 5px;
   border: 1px solid #ccc;
   box-sizing: border-box;
+  text-align: left;
  
+}
+.add-btn {
+  background-color: #79ec0e; 
+  color: rgb(19, 17, 17);
+  font-weight: bold;
+
+}
+
+.add-btn:disabled {
+  background-color: lightblue;
+  cursor: not-allowed;
+  margin-left:auto;
 }
 
 button {
-  padding: 10px 20px;
-  margin: 10px 5px 0 5px;
+  padding: 3px 3px;
+  margin: 20px 5px 0 5px;
   background-color: lightblue;
-  border: 1px solid black;
+  border: 1px solid rgb(182, 175, 175);
   border-radius: 5px;
   cursor: pointer;
   transition: 0.2s;
    display: inline-block;
+   text-align: left;
 }
 
 .btn{
   display: inline-block;
-}
-.box {
-  text-align: center;
-  margin-top: 20px;
 }
 @media (max-width: 600px){
   .todo-container {
