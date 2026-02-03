@@ -10,7 +10,7 @@ export interface Todo {
   completedDate?: string | null;
 }
 const API_BASE =
-  "https://my-backend-api-bkhghnexdugfdbcm.japanwest-01.azurewebsites.net";
+  "https://my-backend-api-bkhghnexdugfdbcm.japanwest-01.azurewebsites.net/api";
 
 const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -26,7 +26,7 @@ const App: React.FC = () => {
 
   useEffect(() => {
     //used to show the list of todos when th app loadw
-    fetch(`${API_BASE}/api/TodoItems`)
+    fetch(`${API_BASE}/Todo`)
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch todos.");
         return res.json(); // ← Kestrel が返した JSON ボディを読み取る
@@ -46,7 +46,7 @@ const App: React.FC = () => {
       const todo = todos.find((t) => t.id === editingId);
       if (!todo) return;
       //put
-      fetch(`${API_BASE}/api/TodoItems/${editingId}`, {
+      fetch(`${API_BASE}/Todo/${editingId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -73,7 +73,7 @@ const App: React.FC = () => {
       return;
     }
     //POST
-    fetch(`${API_BASE}/api/TodoItems`, {
+    fetch(`${API_BASE}/Todo`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -95,7 +95,7 @@ const App: React.FC = () => {
   };
   //handleDelete function
   const handleDelete = (id: number) => {
-    fetch(`${API_BASE}/api/TodoItems/${id}`, {
+    fetch(`${API_BASE}/Todo/${id}`, {
       method: "DELETE",
     })
       .then((res) => {
@@ -119,7 +119,7 @@ const App: React.FC = () => {
       completedDate: newIsComplete ? today : null,
     };
     //PUT complete\incopmelte button flip edit save edit task
-    fetch(`${API_BASE}/api/TodoItems/${id}`, {
+    fetch(`${API_BASE}/Todo/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(putBody),
