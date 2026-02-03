@@ -4,7 +4,7 @@ using Todo.Models;
 
 namespace Todo.Controllers;
 
-[Route("api/TodoItems")]
+[Route("api/Todo")]
 [ApiController]
 public class TodoController : ControllerBase//TodoController ÇÕÅAASP.NET Core Ç≈ Web API ÇçÏÇÈ
 {
