@@ -13,7 +13,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowReactApp",
         policy => policy//ルールの中身を設定
             .WithOrigins("http://localhost:5173",
-"https://my-frontend-app-axewc5hxaahsvea.japanwest-01.azurewebsites.net")//React と通信するため
+"https://salmon-stone-0a038d500.4.azurestaticapps.net")//React と通信するため
             .AllowAnyHeader()
             .AllowAnyMethod());
 });
